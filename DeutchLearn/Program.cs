@@ -8,6 +8,8 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Args;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace DeutchLearn
 {
@@ -31,14 +33,14 @@ namespace DeutchLearn
                     case "/start":
                         await botClient.SendTextMessageAsync(message.Chat.Id,
                                     "Привет! Я был создан чтобы помогать запоминать тебе новые слова 👩‍🏫! Я буду подстраиваться под твой уровень знания немецкого и оптимально выбирать упражнения! Введите /help , если не знаешь что делать 😉");
-                        //await SendMainMenu(message.Chat.Id);
+                        await SendStartMessage(botClient, message.Chat.Id);
                         break;
                     case "/help":
                         await botClient.SendTextMessageAsync(message.Chat.Id, "Бот для изучения немецких слов! \n Чтобы добавить свое слово в словарь введите /add_word \n Чтобы выучить новое введите /learn_word \n Чтобы повторить изученное введите /repeat_word");
                         break;
                     case "/add_word":
                         await botClient.SendTextMessageAsync(message.Chat.Id, "Введите слово на немецком языке");
-                        break;
+                            break;
                     case "/learn_word":
                         int randomid = LearnWord.GetRandomId();
                         IEnumerable<FirstLevel> filteredWord = LearnWord.GetWordById(randomid);
@@ -73,6 +75,19 @@ namespace DeutchLearn
                         break;
                 }
             }
+        }
+        async static Task SendStartMessage(ITelegramBotClient botClient, long chatId)
+        {
+            var replyMarkup = new InlineKeyboardMarkup(new[]
+            {
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Помощь", "/help"),
+                InlineKeyboardButton.WithCallbackData("Кнопка 2")
+            }
+        });
+
+            await botClient.SendTextMessageAsync(chatId, "Привет! Выберите одну из кнопок.", replyMarkup: replyMarkup);
         }
 
         private static Task Error(ITelegramBotClient arg1, Exception arg2, CancellationToken arg3)
