@@ -69,7 +69,7 @@ namespace DeutchLearn
         {
             using (var conn = new NpgsqlConnection(ConfigDb.SqlConnectionString))
             {
-                string sql = $"SELECT wordde, wordru FROM repeatword where chatid =@id AND worddate = (SELECT MIN(worddate) FROM repeatword)";
+                string sql = $"SELECT wordde, wordru FROM repeatword where chatid =@id AND worddate = (SELECT MIN(worddate) FROM repeatword where chatid =@id)";
                 return conn.QueryFirstOrDefault<(string, string)>(sql, new { id });
             }
         }
@@ -78,7 +78,7 @@ namespace DeutchLearn
         {
             using (var conn = new NpgsqlConnection(ConfigDb.SqlConnectionString))
             {
-                string sql = $"update repeatword set worddate = TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS') where chatid =@id AND worddate = (SELECT MIN(worddate) FROM repeatword)";
+                string sql = $"update repeatword set worddate = TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS') where chatid =@id AND worddate = (SELECT MIN(worddate) FROM repeatword where chatid =@id)";
                 conn.Execute(sql, new { id });
                 return true;
             }

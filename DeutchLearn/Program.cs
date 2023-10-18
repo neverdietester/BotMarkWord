@@ -22,26 +22,49 @@ namespace DeutchLearn
             Console.ReadKey();
         }
 
-        async static Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
+        private static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
         {
             var message = update.Message;
             if (message?.Text != null)
             {
-                Console.WriteLine($"{message.Chat.Username} | {message.Text}");
+                Console.WriteLine($"{message.Chat.Id} | {message.Text}");
+                if (message?.Text == null) return;
+                var keyboard1 = new ReplyKeyboardMarkup(new[]
+                {
+                new[]
+                {
+                    new KeyboardButton("Вернуться в меню 🔙")
+                }
+            });
+                var keyboard = new ReplyKeyboardMarkup(new[]
+                {
+                new[]
+                {
+                    new KeyboardButton("Добавить слово✏"),
+                    new KeyboardButton("Учить слова‍🎓"),
+                    new KeyboardButton("Повторить слова🎯‍")
+
+                },
+                 new[]
+                {
+                    new KeyboardButton("Помощь❔"),
+                    new KeyboardButton("Немецкое радио📢"),
+                },
+            });
                 switch (message.Text)
                 {
                     case "/start":
+                    case "Вернуться в меню 🔙":
                         await botClient.SendTextMessageAsync(message.Chat.Id,
-                                    "Привет! Я был создан чтобы помогать запоминать тебе новые слова 👩‍🏫! Я буду подстраиваться под твой уровень знания немецкого и оптимально выбирать упражнения! Введите /help , если не знаешь что делать 😉");
-                        await SendStartMessage(botClient, message.Chat.Id);
+                                    "Привет! Я был создан чтобы помогать запоминать тебе новые слова ⭐ Нажми Помощь❔ если не знаешь, что делать 😉", replyMarkup: keyboard);
                         break;
-                    case "/help":
-                        await botClient.SendTextMessageAsync(message.Chat.Id, "Бот для изучения немецких слов! \n Чтобы добавить свое слово в словарь введите /add_word \n Чтобы выучить новое введите /learn_word \n Чтобы повторить изученное введите /repeat_word");
+                    case "Помощь❔":
+                        await botClient.SendTextMessageAsync(message.Chat.Id, "Бот для изучения немецких слов!\n Чтобы изучить новое нажми Учить слова‍🎓\n Чтобы повторить изученное нажми Повторить слова🎯\n Чтобы добавить свое слово в словарь нажми Добавить слово✏");
                         break;
-                    case "/add_word":
-                        await botClient.SendTextMessageAsync(message.Chat.Id, "Введите слово на немецком языке");
-                            break;
-                    case "/learn_word":
+                    case "Добавить слово✏":
+                        await botClient.SendTextMessageAsync(message.Chat.Id, "Напиши слово на немецком языке");
+                        break;
+                    case "Учить слова‍🎓":
                         int randomid = LearnWord.GetRandomId();
                         IEnumerable<FirstLevel> filteredWord = LearnWord.GetWordById(randomid);
                         foreach (FirstLevel firstLevel in filteredWord)
@@ -66,28 +89,25 @@ namespace DeutchLearn
                             }
                         }
                         break;
-                    case "/repeat_word":
+                    case "Повторить слова🎯‍":
                         var repeatWord = LearnWord.GetOldDateWord((int)message.Chat.Id);
                         await botClient.SendTextMessageAsync(message.Chat.Id, "Повторите:");
                         await botClient.SendTextMessageAsync(message.Chat.Id, repeatWord.wordde);
                         await botClient.SendTextMessageAsync(message.Chat.Id, $"Перевод: {repeatWord.wordru}");
                         LearnWord.UpdateDateWord((int)message.Chat.Id);
                         break;
+                    case "Немецкое радио📢":
+                        var inlineKeyboard = new InlineKeyboardMarkup(new[]
+    {
+        new[]
+        {
+            InlineKeyboardButton.WithUrl("Немецкое радио📢", "https://www.de-online.ru/nemeckoe_radio_online")
+        }
+    });
+                        await botClient.SendTextMessageAsync(message.Chat.Id, "Слушай немецкое радио и повышай свой скилл 💪", replyMarkup: inlineKeyboard);
+                        break;
                 }
             }
-        }
-        async static Task SendStartMessage(ITelegramBotClient botClient, long chatId)
-        {
-            var replyMarkup = new InlineKeyboardMarkup(new[]
-            {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Помощь", "/help"),
-                InlineKeyboardButton.WithCallbackData("Кнопка 2")
-            }
-        });
-
-            await botClient.SendTextMessageAsync(chatId, "Привет! Выберите одну из кнопок.", replyMarkup: replyMarkup);
         }
 
         private static Task Error(ITelegramBotClient arg1, Exception arg2, CancellationToken arg3)
