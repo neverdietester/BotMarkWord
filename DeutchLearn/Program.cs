@@ -41,14 +41,16 @@ namespace DeutchLearn
                         await BotOnMessageReceived(botClient, update.Message);
                         break;
                     case UpdateType.CallbackQuery:
-                        if (_word == null)
-                            return;
-                        await _word.OnAnswer(update.CallbackQuery);
-                        if (_article == null)
-                            return;
-                        await _article.OnAnswer(update.CallbackQuery);
-
-                        break;
+                        if (_word != null)
+                        {
+                            await _word.OnAnswer(update.CallbackQuery);
+                        }
+                        if (_article != null)
+                        {
+                            await _article.OnAnswer(update.CallbackQuery);
+                        }
+                        else return;
+                            break;
                 }
             }
             catch (Exception ex)

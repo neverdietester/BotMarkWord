@@ -77,10 +77,6 @@ namespace DeutchLearn
                             {
                                 InlineKeyboardButton.WithCallbackData("Перевод", "translate"),
                                 InlineKeyboardButton.WithCallbackData("Ответ", "answer")
-                            },
-                            new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData("Finish", "stop")
                             }
                         }
                     );
@@ -89,7 +85,7 @@ namespace DeutchLearn
                     IEnumerable<ArticleBegin> articleFiltredGe = LearnArticle.GetWordByArticle(randomidart);
                     foreach (ArticleBegin articleBegin in articleFiltredGe)
                     {
-                        await _botClient.SendTextMessageAsync(_chat.Id, articleBegin.Germany);
+                        await _botClient.SendTextMessageAsync(_chat.Id, $"💥{articleBegin.Germany}");
                     }
                         await _botClient.SendTextMessageAsync(_chat.Id,
                             $"Выберите вариант",
